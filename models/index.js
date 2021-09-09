@@ -4,17 +4,22 @@ const { DataTypes } = require('sequelize')
 
 // Grab Model Functions
 const DefineUser = require('./User')
-const DefinePost = require('./Post')
+const DefineReview = require('./Review')
+const DefineReadingList = require('./ReadingList')
 
 const User = DefineUser(sequelize, DataTypes) // Defines the model
-const Post = DefinePost(sequelize, DataTypes) // Defines the model
+const Review = DefineReview(sequelize, DataTypes) // Defines the model
+const ReadingList = DefineReadingList(sequelize, DataTypes) // Defines the model
 
 // Define Associations
-User.hasMany(Post)
-Post.belongsTo(User)
+User.hasMany(Review)
+Review.belongsTo(User)
+
+User.hasMany(ReadingList)
+ReadingList.belongsTo(User)
 
 // Sync
 synceDb(sequelize, { alter:true })
 
 
-module.exports = { User, Post }
+module.exports = { User, Review, ReadingList }

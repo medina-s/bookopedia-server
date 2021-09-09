@@ -6,6 +6,9 @@ const port = 3000
 ;(async() => {
   app.use(express.json())
 
+  const index = require('./controllers/Index')
+  app.use("/", index)
+
   const auth = require('./controllers/Auth')
   app.use("/auth", auth)
 
@@ -13,6 +16,6 @@ const port = 3000
   app.use('/post', post)
 
   app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`)
+    console.log(`Bookopedia App Listening at http://localhost:${port}`)
   })
 })()
