@@ -1,10 +1,5 @@
 module.exports = (sequelize, DataTypes) => {
     const Review = sequelize.define("Review", {
-            userid: {
-                type: DataTypes.INTEGER,
-                allowNull: false,
-                unique: false,
-            },
             booktitle: {
                 type: DataTypes.STRING(100),
                 allowNull: false,
@@ -27,5 +22,5 @@ module.exports = (sequelize, DataTypes) => {
             },
             
     })
-    return User
+    return Review
 }

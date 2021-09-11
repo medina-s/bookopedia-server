@@ -12,8 +12,11 @@ const port = 3000
   const auth = require('./controllers/Auth')
   app.use("/auth", auth)
 
-  const post = require('./controllers/Post')
-  app.use('/post', post)
+  const review = require('./controllers/Review')
+  app.use('/review', review)
+
+  const readinglist = require('./controllers/ReadingList')
+  app.use('/readinglist', readinglist)
 
   app.listen(port, () => {
     console.log(`Bookopedia App Listening at http://localhost:${port}`)

@@ -21,5 +21,4 @@ ReadingList.belongsTo(User)
 // Sync
 synceDb(sequelize, { alter:true })
 
-
 module.exports = { User, Review, ReadingList }
