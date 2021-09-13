@@ -1,12 +1,13 @@
 let express = require('express')
 let router = express.Router()
+let validateJWT = require("../middleware/validate-jwt")
 const { User, Review } = require('../models')
 
-router.post("/create/:userid", async (req, res) => {
+router.post("/create",validateJWT, async (req, res) => {
     let message 
     console.log(User)
     try{
-        let u = await User.findOne({ where: { id: req.params.userid } })
+        let u = req.user // await User.findOne({ where: { id: req.params.userid } })
         if (u) {
             let review = await Review.create({ booktitle: req.body.review.booktitle,
                 bookauthor: req.body.review.bookauthor,
@@ -15,28 +16,28 @@ router.post("/create/:userid", async (req, res) => {
                 })
             await u.addReview(review)
 
-            let { id, booktitle, bookauthor, reviewtext, rating } = await Review.findOne({ where: { id: review.id } })
-            console.log(review.id)
-            message = { message: "Post made!", data: { id, booktitle, bookauthor, reviewtext, rating }}    
+            let { id, booktitle, bookauthor, reviewtext, rating, UserId } = await Review.findOne({ where: { id: review.id } })
+            //console.log(review.id)
+            message = { message: "Review made!", data: { id, booktitle, bookauthor, reviewtext, rating, UserId }}    
         }
         else {
-            message = { message: "Can't make a post, user does not exist", data: null }
+            message = { message: "Can't make a review, user does not exist", data: null }
         }
 
     } catch(err) {
-        message = { message: "Post Create Failed" }
+        message = { message: "Review Create Failed" }
         console.log(err)
     }
     res.json(message)
 })
 
-router.get("/user/:userid/all/", async(req, res) => {
-    let u = await User.findOne({ where: { id: req.params.userid }})
+router.get("/u/all",validateJWT, async(req, res) => {
+    let u = req.user // await User.findOne({ where: { id: req.params.userid }})
     let reviews = u ? await u.getReviews() : null
     if (reviews){
         let all_reviews = reviews.map( r => {
-                    const { id, booktitle, bookauthor, reviewtext, rating } = r
-                    return { id, booktitle, bookauthor, reviewtext, rating }
+                    const { id, booktitle, bookauthor, reviewtext, rating, UserId } = r
+                    return { id, booktitle, bookauthor, reviewtext, rating, UserId }
         })
 
         res.send(all_reviews)
@@ -45,9 +46,9 @@ router.get("/user/:userid/all/", async(req, res) => {
         res.send(reviews)
 })
 
-router.get("/user/:userid/review/:reviewid", async(req, res) => {
+router.get("/r/:reviewid",validateJWT, async(req, res) => {
     try{
-    let u = await Review.findOne({ where: { id: req.params.reviewid , UserId: req.params.userid}})
+    let u = await Review.findOne({ where: { id: req.params.reviewid , UserId: req.user.id}})
     //let reviews = u ? await u.getReviews() : null
 
     if (u != null){
@@ -67,6 +68,7 @@ router.get("/user/:userid/review/:reviewid", async(req, res) => {
 })
 
 router.get("/all/:booktitle/:bookauthor", async(req, res) => {
+    
     try{
 
     let u = await Review.findAll({ where: { booktitle: req.params.booktitle, bookauthor: req.params.bookauthor }})
@@ -87,20 +89,22 @@ router.get("/all/:booktitle/:bookauthor", async(req, res) => {
         res.send(message)}
 }catch(err){
     console.log(err)
+    message = {message: "Error with your query. Check User and Review ID."}
+    res.send(message)
 }
 })
 
-router.put("/user/:userid/edit/:reviewid/", async (req, res) => {
+router.put("/edit/:reviewid",validateJWT, async (req, res) => {
     let message 
     console.log(User)
     try{
-        let u = await User.findOne({ where: { id: req.params.userid } })
+        let u = req.user // await User.findOne({ where: { id: req.params.userid } })
         if (u) {
             let review = await Review.update({ booktitle: req.body.review.booktitle,
                 bookauthor: req.body.review.bookauthor,
                 reviewtext: req.body.review.reviewtext,
                 rating: req.body.review.rating
-                }, {where: {UserId: req.params.userid, id: req.params.reviewid}})
+                }, {where: {UserId: u.id, id: req.params.reviewid}})
             //await u.addReview(review)
 
             let { id, booktitle, bookauthor, reviewtext, rating } = await Review.findOne({ where: { id: req.params.reviewid } })
@@ -119,13 +123,13 @@ router.put("/user/:userid/edit/:reviewid/", async (req, res) => {
     res.json(message)
 })
 
-router.delete("/user/:userid/delete/:reviewid/", async (req, res) => {
+router.delete("/delete/:reviewid",validateJWT, async (req, res) => {
     let message 
     console.log(User)
     try{
-        let u = await User.findOne({ where: { id: req.params.userid } })
+        let u = req.user // await User.findOne({ where: { id: req.params.userid } })
         if (u) {
-            let review = await Review.destroy({where: {UserId: req.params.userid, id: req.params.reviewid}})
+            let review = await Review.destroy({where: {UserId: u.id, id: req.params.reviewid}})
             //await u.addReview(review)
 
             //let { id, booktitle, bookauthor, reviewtext, rating } = await Review.findOne({ where: { id: req.params.reviewid } })

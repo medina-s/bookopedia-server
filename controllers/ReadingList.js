@@ -1,13 +1,14 @@
 const e = require('express')
 let express = require('express')
 let router = express.Router()
+let validateJWT = require("../middleware/validate-jwt")
 const { User, ReadingList } = require('../models')
 
-router.post("/create/:userid", async (req, res) => {
+router.post("/create",validateJWT, async (req, res) => {
     let message 
     console.log(User)
     try{
-        let u = await User.findOne({ where: { id: req.params.userid } })
+        let u = req.user // await User.findOne({ where: { id: req.params.userid } })
         if (u) {
             let readinglist = await ReadingList.create({ booktitle: req.body.rlist.booktitle,
                 bookauthor: req.body.rlist.bookauthor,
@@ -31,8 +32,8 @@ router.post("/create/:userid", async (req, res) => {
     res.json(message)
 })
 
-router.get("/user/:userid/all", async(req, res) => {
-    let u = await User.findOne({ where: { id: req.params.userid}})
+router.get("/all",validateJWT, async(req, res) => {
+    let u = req.user // await User.findOne({ where: { id: req.params.userid}})
     let readinglist = u ? await u.getReadingLists() : null
     if (readinglist){
         let all_readinglist = readinglist.map( r => {
@@ -46,9 +47,9 @@ router.get("/user/:userid/all", async(req, res) => {
         res.send(readinglist)
 })
 
-router.get("/user/:userid/rlist/:rlistid", async(req, res) => {
+router.get("/r/:rlistid",validateJWT, async(req, res) => {
     try{
-    let u = await ReadingList.findOne({ where: { id: req.params.rlistid , UserId: req.params.userid}})
+    let u = await ReadingList.findOne({ where: { id: req.params.rlistid , UserId: req.user.id}})
     //let reviews = u ? await u.getReviews() : null
 
     if (u != null){
@@ -67,23 +68,23 @@ router.get("/user/:userid/rlist/:rlistid", async(req, res) => {
 }
 })
 
-router.put("/user/:userid/edit/:rlistid/", async (req, res) => {
+router.put("/edit/:rlistid",validateJWT, async (req, res) => {
     let message 
     console.log(User)
     let rlist
     try{
-        let u = await User.findOne({ where: { id: req.params.userid } })
+        let u = req.user // await User.findOne({ where: { id: req.params.userid } })
         if (u) {
              rlist = await ReadingList.update({ booktitle: req.body.rlist.booktitle,
                 bookauthor: req.body.rlist.bookauthor,
                 status: req.body.rlist.status
-                }, {where: {UserId: req.params.userid, id: req.params.rlistid}})
+                }, {where: {UserId: u.id, id: req.params.rlistid}})
             //await u.addReview(review)
             
             if (rlist[0] != 0){
                 let { id, booktitle, bookauthor, status, UserId } = await ReadingList.findOne({ where: { id: req.params.rlistid } })
-            console.log("+++++++++++++++++")
-            console.log(rlist)
+            //console.log("+++++++++++++++++")
+            //console.log(rlist)
             message = { message: "Reading List updated!", data: { id, booktitle, bookauthor, status, UserId }} 
             }
                else{
@@ -101,13 +102,13 @@ router.put("/user/:userid/edit/:rlistid/", async (req, res) => {
     res.json(message)
 })
 
-router.delete("/user/:userid/delete/:rlistid/", async (req, res) => {
+router.delete("/delete/:rlistid",validateJWT, async (req, res) => {
     let message 
     console.log(User)
     try{
-        let u = await User.findOne({ where: { id: req.params.userid } })
+        let u = req.user // await User.findOne({ where: { id: req.params.userid } })
         if (u) {
-            let rlist = await ReadingList.destroy({where: {UserId: req.params.userid, id: req.params.rlistid}})
+            let rlist = await ReadingList.destroy({where: {UserId: u.id, id: req.params.rlistid}})
             //await u.addReview(review)
 
             //let { id, booktitle, bookauthor, reviewtext, rating } = await Review.findOne({ where: { id: req.params.reviewid } })

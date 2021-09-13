@@ -17,12 +17,12 @@ router.post("/register/", async (req, res) => {
             role: "general"
         })
 
-        let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 6*60*24});
+        //let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 6*60*24});
 
         message = {
             msg:'User Registered', 
-            user: user,
-            sessionToken: token
+            user: user
+            //sessionToken: token
         }
     } catch (err){
         //console.log(err)
@@ -69,7 +69,7 @@ router.post("/login/", async (req, res) => {
         }
     } catch (err){
         res.status(500).json({
-            message: "Falied to log in user!"
+            message: "Failed to log in user!"
         })
     }
     
