@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
                 type: DataTypes.STRING(10),
                 allowNull: false,
                 unique: false,
+                default: 'general'
             }
             
     })

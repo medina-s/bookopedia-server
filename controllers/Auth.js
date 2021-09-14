@@ -3,6 +3,7 @@ let router = express.Router()
 const { User } = require('../models')
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcryptjs")
+let validateJWT = require("../middleware/validate-jwt")
 
 router.post("/register/", async (req, res) => {
     let message 
@@ -14,7 +15,7 @@ router.post("/register/", async (req, res) => {
             firstname: req.body.user.firstname,
             lastname: req.body.user.lastname,
             email: req.body.user.email,
-            role: "general"
+            role: req.body.user.role
         })
 
         //let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 6*60*24});
@@ -73,6 +74,58 @@ router.post("/login/", async (req, res) => {
         })
     }
     
+})
+
+router.delete("/delete/u/:userid",validateJWT, async (req, res) => {
+    let message 
+    console.log(User)
+    try{
+        let u = req.user // await User.findOne({ where: { id: req.params.userid } })
+        if (u.role == 'admin') {
+            let user = await User.destroy({where: {id: req.params.userid}})
+            //await u.addReview(review)
+
+            //let { id, booktitle, bookauthor, reviewtext, rating } = await Review.findOne({ where: { id: req.params.reviewid } })
+            //console.log("+++++++++++++++++")
+            //console.log(review)
+            message = { message: "User deleted!"}    
+        }
+        else {
+            message = { message: "Access Denied.", data: null }
+        }
+
+    } catch(err) {
+        message = { message: "User Delete Failed"}
+        console.log(err)
+    }
+    res.json(message)
+})
+
+router.get("/u/all",validateJWT, async(req, res) => {
+    try{
+    let u = req.user // await User.findOne({ where: { id: req.params.userid }})
+    
+    //let reviews = u ? await u.getReviews() : null
+    if (u.role == 'admin'){
+        let users = await User.findAll()
+        let all_users = users.map( r => {
+                    const { id, firstname, lastname, username, role } = r
+                    return { id, firstname, lastname, username, role }
+        })
+
+        res.send(all_users)
+    }
+    else{
+        message = { message: "Access Denied"}
+    //console.log(err)
+        res.send(message)
+    }
+        //res.send(reviews)
+} catch(err){
+    message = { message: "Users Fetch Failed"}
+    console.log(err)
+    res.send(message)
+}
 })
 
 module.exports = router
