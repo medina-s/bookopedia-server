@@ -4,6 +4,9 @@ const app = express()
 const port = 3000
 
 ;(async() => {
+
+  app.use(require('./middleware/headers'))
+
   app.use(express.json())
 
   const index = require('./controllers/Index')

@@ -18,12 +18,12 @@ router.post("/register/", async (req, res) => {
             role: req.body.user.role
         })
 
-        //let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 6*60*24});
+        let token = jwt.sign({id: user.id}, process.env.JWT_SECRET, {expiresIn: 6*60*24});
 
         message = {
             msg:'User Registered', 
-            user: user
-            //sessionToken: token
+            user: user,
+            sessionToken: token
         }
     } catch (err){
         //console.log(err)
