@@ -109,7 +109,7 @@ router.get("/u/all", validateJWT, async (req, res) => {
 
     //let reviews = u ? await u.getReviews() : null
     if (u.role == "admin") {
-      let users = await User.findAll();
+      let users = await User.findAll({where: { role: "general" }});
       let all_users = users.map((r) => {
         const { id, firstname, lastname, username, role } = r;
         return { id, firstname, lastname, username, role };
