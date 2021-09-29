@@ -111,8 +111,8 @@ router.get("/u/all", validateJWT, async (req, res) => {
     if (u.role == "admin") {
       let users = await User.findAll({where: { role: "general" }});
       let all_users = users.map((r) => {
-        const { id, firstname, lastname, username, role } = r;
-        return { id, firstname, lastname, username, role };
+        const { id, firstname, lastname, username, email, role } = r;
+        return { id, firstname, lastname, username, email, role };
       });
 
       res.send(all_users);
