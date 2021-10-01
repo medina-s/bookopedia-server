@@ -28,7 +28,7 @@ router.post("/register/", async (req, res) => {
       sessionToken: token,
     };
   } catch (err) {
-    //console.log(err)
+    console.log(err)
     console.log(req.body);
     message = {
       message: "Failed to Create User",
