@@ -1,7 +1,7 @@
 require('dotenv').config()
 const express = require('express')
 const app = express()
-const port = 3000
+//const port = 3000
 
 ;(async() => {
 
@@ -21,7 +21,7 @@ const port = 3000
   const readinglist = require('./controllers/ReadingList')
   app.use('/readinglist', readinglist)
 
-  app.listen(port, () => {
-    console.log(`Bookopedia App Listening at http://localhost:${port}`)
+  app.listen(process.env.PORT, () => {
+    console.log(`server is listening on port ${process.env.PORT}`)
   })
 })()
